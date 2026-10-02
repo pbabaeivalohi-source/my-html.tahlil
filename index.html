@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>تحلیل نمرات دانش‌آموزان | دبیر ریاضی بابائی</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:
+        Tahoma,
+        "Vazirmatn",
+        Arial,
+        sans-serif;
+    background:
+        linear-gradient(135deg,#eef4ff,#f8fbff,#eef8f4);
+    color:#263238;
+}
+
+.container{
+    width:95%;
+    max-width:1250px;
+    margin:25px auto;
+}
+
+/* Header */
+
+.header{
+    background:linear-gradient(135deg,#174ea6,#2563eb);
+    color:white;
+    border-radius:25px;
+    padding:30px;
+    box-shadow:0 12px 30px rgba(37,99,235,.25);
+    margin-bottom:20px;
+}
+
+.header h1{
+    margin:0 0 8px;
+    font-size:30px;
+}
+
+.header p{
+    margin:5px 0;
+    opacity:.92;
+}
+
+/* Input Card */
+
+.card{
+    background:white;
+    border-radius:22px;
+    padding:25px;
+    margin-bottom:20px;
+    box-shadow:0 8px 25px rgba(0,0,0,.07);
+}
+
+.card-title{
+    font-size:21px;
+    font-weight:bold;
+    margin-bottom:20px;
+    color:#174ea6;
+}
+
+.input-row{
+    display:grid;
+    grid-template-columns:1fr 180px 130px;
+    gap:12px;
+}
+
+input{
+    width:100%;
+    border:2px solid #e2e8f0;
+    border-radius:13px;
+    padding:13px;
+    font-size:16px;
+    outline:none;
+    transition:.2s;
+}
+
+input:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,.1);
+}
+
+button{
+    border:none;
+    border-radius:13px;
+    padding:12px 18px;
+    font-size:15px;
+    font-family:inherit;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.add-btn{
+    background:#2563eb;
+    color:white;
+}
+
+.clear-btn{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.pdf-btn{
+    background:#16a34a;
+    color:white;
+}
+
+.demo-btn{
+    background:#f3f4f6;
+    color:#374151;
+}
+
+/* Statistics */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:white;
+    padding:22px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 7px 22px rgba(0,0,0,.06);
+    border-top:5px solid #2563eb;
+}
+
+.stat:nth-child(2){
+    border-color:#16a34a;
+}
+
+.stat:nth-child(3){
+    border-color:#f59e0b;
+}
+
+.stat:nth-child(4){
+    border-color:#ef4444;
+}
+
+.stat-icon{
+    font-size:28px;
+}
+
+.stat-title{
+    color:#64748b;
+    margin:7px 0;
+}
+
+.stat-value{
+    font-size:27px;
+    font-weight:bold;
+}
+
+/* Charts */
+
+.charts{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:20px;
+}
+
+.chart-card{
+    background:white;
+    border-radius:22px;
+    padding:22px;
+    box-shadow:0 8px 25px rgba(0,0,0,.07);
+}
+
+.chart-container{
+    height:350px;
+    position:relative;
+}
+
+/* Levels */
+
+.levels{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-top:20px;
+}
+
+.level{
+    border-radius:18px;
+    padding:18px;
+    text-align:center;
+    color:white;
+}
+
+.excellent{
+    background:linear-gradient(135deg,#16a34a,#22c55e);
+}
+
+.good{
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+}
+
+.average{
+    background:linear-gradient(135deg,#d97706,#f59e0b);
+}
+
+.weak{
+    background:linear-gradient(135deg,#dc2626,#ef4444);
+}
+
+.level-name{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.level-count{
+    font-size:30px;
+    font-weight:bold;
+    margin-top:8px;
+}
+
+.level-range{
+    font-size:13px;
+    opacity:.9;
+}
+
+/* Table */
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th{
+    background:#eff6ff;
+    color:#174ea6;
+    padding:14px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:center;
+}
+
+tr:hover{
+    background:#f8fafc;
+}
+
+.badge{
+    display:inline-block;
+    padding:6px 14px;
+    border-radius:20px;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.badge-excellent{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.badge-good{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.badge-average{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.badge-weak{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.delete-btn{
+    background:#fee2e2;
+    color:#dc2626;
+    padding:6px 10px;
+}
+
+/* Footer */
+
+.footer{
+    text-align:center;
+    color:#64748b;
+    padding:20px;
+    font-size:14px;
+}
+
+/* Buttons */
+
+.actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:20px;
+}
+
+/* Print */
+
+@media print{
+
+    body{
+        background:white;
+    }
+
+    .no-print{
+        display:none !important;
+    }
+
+    .container{
+        width:100%;
+        max-width:none;
+        margin:0;
+    }
+
+    .card,
+    .chart-card,
+    .stat{
+        box-shadow:none;
+        border:1px solid #ddd;
+    }
+
+}
+
+/* Responsive */
+
+@media(max-width:900px){
+
+    .input-row{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .input-row button{
+        grid-column:span 2;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .charts{
+        grid-template-columns:1fr;
+    }
+
+    .levels{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:550px){
+
+    .header h1{
+        font-size:22px;
+    }
+
+    .input-row{
+        grid-template-columns:1fr;
+    }
+
+    .input-row button{
+        grid-column:auto;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .levels{
+        grid-template-columns:1fr;
+    }
+
+    .chart-container{
+        height:300px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container" id="report">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>📊 تحلیل نمرات دانش‌آموزان</h1>
+
+        <p>
+            سامانه تحلیل و ارزیابی عملکرد دانش‌آموزان
+        </p>
+
+        <p>
+            👩🏻‍🏫 دبیر ریاضی: بابائی
+        </p>
+
+    </div>
+
+
+    <!-- INPUT -->
+
+    <div class="card no-print">
+
+        <div class="card-title">
+            ✏️ ورود نمرات دانش‌آموزان
+        </div>
+
+        <div class="input-row">
+
+            <input
+                type="text"
+                id="studentName"
+                placeholder="نام و نام خانوادگی دانش‌آموز"
+            >
+
+            <input
+                type="number"
+                id="studentScore"
+                placeholder="نمره از ۲۰"
+                min="0"
+                max="20"
+                step="0.25"
+            >
+
+            <button
+                class="add-btn"
+                onclick="addStudent()"
+            >
+                ➕ افزودن
+            </button>
+
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                class="demo-btn"
+                onclick="addDemoData()"
+            >
+                🧪 نمونه آزمایشی
+            </button>
+
+            <button
+                class="clear-btn"
+                onclick="clearAll()"
+            >
+                🗑 پاک کردن همه
+            </button>
+
+            <button
+                class="pdf-btn"
+                onclick="generatePDF()"
+            >
+                📄 خروجی PDF
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <div class="stat-icon">👥</div>
+
+            <div class="stat-title">
+                تعداد دانش‌آموزان
+            </div>
+
+            <div
+                class="stat-value"
+                id="studentCount"
+            >
+                ۰
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-icon">🏆</div>
+
+            <div class="stat-title">
+                بیشترین نمره
+            </div>
+
+            <div
+                class="stat-value"
+                id="maxScore"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-icon">📉</div>
+
+            <div class="stat-title">
+                کمترین نمره
+            </div>
+
+            <div
+                class="stat-value"
+                id="minScore"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-icon">📈</div>
+
+            <div class="stat-title">
+                میانگین کلاس
+            </div>
+
+            <div
+                class="stat-value"
+                id="averageScore"
+            >
+                -
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- LEVELS -->
+
+    <div class="card">
+
+        <div class="card-title">
+            🎯 وضعیت سطح یادگیری کلاس
+        </div>
+
+        <div class="levels">
+
+            <div class="level excellent">
+
+                <div class="level-name">
+                    عالی
+                </div>
+
+                <div
+                    class="level-count"
+                    id="excellentCount"
+                >
+                    ۰
+                </div>
+
+                <div class="level-range">
+                    ۱۷ تا ۲۰
+                </div>
+
+            </div>
+
+
+            <div class="level good">
+
+                <div class="level-name">
+                    خوب
+                </div>
+
+                <div
+                    class="level-count"
+                    id="goodCount"
+                >
+                    ۰
+                </div>
+
+                <div class="level-range">
+                    ۱۴ تا کمتر از ۱۷
+                </div>
+
+            </div>
+
+
+            <div class="level average">
+
+                <div class="level-name">
+                    متوسط
+                </div>
+
+                <div
+                    class="level-count"
+                    id="averageCount"
+                >
+                    ۰
+                </div>
+
+                <div class="level-range">
+                    ۱۰ تا کمتر از ۱۴
+                </div>
+
+            </div>
+
+
+            <div class="level weak">
+
+                <div class="level-name">
+                    ضعیف
+                </div>
+
+                <div
+                    class="level-count"
+                    id="weakCount"
+                >
+                    ۰
+                </div>
+
+                <div class="level-range">
+                    کمتر از ۱۰
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHARTS -->
+
+    <div class="charts">
+
+        <div class="chart-card">
+
+            <div class="card-title">
+                📊 نمودار میله‌ای نمرات
+            </div>
+
+            <div class="chart-container">
+
+                <canvas id="barChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-card">
+
+            <div class="card-title">
+                🥧 نمودار دایره‌ای سطح کلاس
+            </div>
+
+            <div class="chart-container">
+
+                <canvas id="pieChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TABLE -->
+
+    <div class="card">
+
+        <div class="card-title">
+            📋 جدول تحلیل دانش‌آموزان
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ردیف</th>
+
+                        <th>نام دانش‌آموز</th>
+
+                        <th>نمره</th>
+
+                        <th>سطح</th>
+
+                        <th class="no-print">حذف</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="studentTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        طراحی شده برای تحلیل عملکرد دانش‌آموزان
+        <br>
+        دبیر ریاضی بابائی
+
+    </div>
+
+</div>
+
+
+<script>
+
+let students = [];
+
+let barChart = null;
+let pieChart = null;
+
+
+/* تبدیل اعداد */
+
+function persianNumber(number){
+
+    return number
+        .toString()
+        .replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+
+}
+
+
+/* تعیین سطح */
+
+function getLevel(score){
+
+    if(score >= 17){
+
+        return {
+            name:"عالی",
+            className:"badge-excellent"
+        };
+
+    }
+
+    if(score >= 14){
+
+        return {
+            name:"خوب",
+            className:"badge-good"
+        };
+
+    }
+
+    if(score >= 10){
+
+        return {
+            name:"متوسط",
+            className:"badge-average"
+        };
+
+    }
+
+    return {
+        name:"ضعیف",
+        className:"badge-weak"
+    };
+
+}
+
+
+/* افزودن دانش‌آموز */
+
+function addStudent(){
+
+    const nameInput =
+        document.getElementById("studentName");
+
+    const scoreInput =
+        document.getElementById("studentScore");
+
+    const name =
+        nameInput.value.trim();
+
+    const score =
+        parseFloat(scoreInput.value);
+
+
+    if(!name){
+
+        alert("لطفاً نام دانش‌آموز را وارد کنید.");
+
+        nameInput.focus();
+
+        return;
+
+    }
+
+
+    if(
+        isNaN(score) ||
+        score < 0 ||
+        score > 20
+    ){
+
+        alert("لطفاً نمره‌ای بین ۰ تا ۲۰ وارد کنید.");
+
+        scoreInput.focus();
+
+        return;
+
+    }
+
+
+    students.push({
+
+        name:name,
+
+        score:score
+
+    });
+
+
+    nameInput.value="";
+    scoreInput.value="";
+
+    nameInput.focus();
+
+    updateAll();
+
+}
+
+
+/* حذف دانش‌آموز */
+
+function deleteStudent(index){
+
+    students.splice(index,1);
+
+    updateAll();
+
+}
+
+
+/* پاک کردن همه */
+
+function clearAll(){
+
+    if(students.length === 0){
+
+        return;
+
+    }
+
+
+    if(
+        confirm(
+            "آیا مطمئن هستید که همه نمرات پاک شوند؟"
+        )
+    ){
+
+        students=[];
+
+        updateAll();
+
+    }
+
+}
+
+
+/* اطلاعات نمونه */
+
+function addDemoData(){
+
+    students = [
+
+        {name:"روشنا ساداتی",score:19},
+        {name:"ایناز علی‌پور",score:12},
+        {name:"وانیا اوریجی",score:16},
+        {name:"سارینا یوسفی",score:10},
+        {name:"آرینا محمدی",score:18.5},
+        {name:"نگین احمدی",score:14.5},
+        {name:"زهرا رضایی",score:8},
+        {name:"مریم حسینی",score:7.5}
+
+    ];
+
+    updateAll();
+
+}
+
+
+/* به‌روزرسانی همه */
+
+function updateAll(){
+
+    updateStatistics();
+
+    updateLevels();
+
+    updateTable();
+
+    updateCharts();
+
+}
+
+
+/* آمار */
+
+function updateStatistics(){
+
+    const count =
+        students.length;
+
+
+    document.getElementById("studentCount")
+        .textContent =
+        persianNumber(count);
+
+
+    if(count === 0){
+
+        document.getElementById("maxScore")
+            .textContent="-";
+
+        document.getElementById("minScore")
+            .textContent="-";
+
+        document.getElementById("averageScore")
+            .textContent="-";
+
+        return;
+
+    }
+
+
+    const scores =
+        students.map(s => s.score);
+
+
+    const max =
+        Math.max(...scores);
+
+    const min =
+        Math.min(...scores);
+
+    const average =
+        scores.reduce(
+            (sum,value) => sum + value,
+            0
+        ) / count;
+
+
+    document.getElementById("maxScore")
+        .textContent =
+        persianNumber(max.toFixed(2).replace(".00",""));
+
+
+    document.getElementById("minScore")
+        .textContent =
+        persianNumber(min.toFixed(2).replace(".00",""));
+
+
+    document.getElementById("averageScore")
+        .textContent =
+        persianNumber(average.toFixed(2));
+
+}
+
+
+/* سطوح */
+
+function updateLevels(){
+
+    let excellent=0;
+    let good=0;
+    let average=0;
+    let weak=0;
+
+
+    students.forEach(student => {
+
+        if(student.score >= 17){
+
+            excellent++;
+
+        }
+        else if(student.score >= 14){
+
+            good++;
+
+        }
+        else if(student.score >= 10){
+
+            average++;
+
+        }
+        else{
+
+            weak++;
+
+        }
+
+    });
+
+
+    document.getElementById("excellentCount")
+        .textContent =
+        persianNumber(excellent);
+
+
+    document.getElementById("goodCount")
+        .textContent =
+        persianNumber(good);
+
+
+    document.getElementById("averageCount")
+        .textContent =
+        persianNumber(average);
+
+
+    document.getElementById("weakCount")
+        .textContent =
+        persianNumber(weak);
+
+}
+
+
+/* جدول */
+
+function updateTable(){
+
+    const table =
+        document.getElementById("studentTable");
+
+    table.innerHTML="";
+
+
+    students.forEach((student,index) => {
+
+        const level =
+            getLevel(student.score);
+
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+                ${persianNumber(index + 1)}
+            </td>
+
+            <td>
+                ${escapeHTML(student.name)}
+            </td>
+
+            <td>
+                <strong>
+                    ${persianNumber(student.score)}
+                </strong>
+            </td>
+
+            <td>
+
+                <span class="badge ${level.className}">
+                    ${level.name}
+                </span>
+
+            </td>
+
+            <td class="no-print">
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteStudent(${index})"
+                >
+                    حذف
+                </button>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+    });
+
+}
+
+
+/* جلوگیری از ورود HTML ناخواسته */
+
+function escapeHTML(text){
+
+    const div =
+        document.createElement("div");
+
+    div.textContent=text;
+
+    return div.innerHTML;
+
+}
+
+
+/* نمودارها */
+
+function updateCharts(){
+
+    const names =
+        students.map(s => s.name);
+
+    const scores =
+        students.map(s => s.score);
+
+
+    if(barChart){
+
+        barChart.destroy();
+
+    }
+
+
+    const barCanvas =
+        document.getElementById("barChart");
+
+
+    barChart =
+        new Chart(
+            barCanvas,
+            {
+
+                type:"bar",
+
+                data:{
+
+                    labels:names,
+
+                    datasets:[{
+
+                        label:"نمره",
+
+                        data:scores,
+
+                        borderWidth:1,
+
+                        borderRadius:8
+
+                    }]
+
+                },
+
+                options:{
+
+                    responsive:true,
+
+                    maintainAspectRatio:false,
+
+                    scales:{
+
+                        y:{
+
+                            min:0,
+
+                            max:20,
+
+                            title:{
+
+                                display:true,
+
+                                text:"نمره"
+
+                            }
+
+                        },
+
+                        x:{
+
+                            ticks:{
+
+                                autoSkip:false,
+
+                                maxRotation:60,
+
+                                minRotation:30
+
+                            }
+
+                        }
+
+                    },
+
+                    plugins:{
+
+                        legend:{
+
+                            display:false
+
+                        },
+
+                        tooltip:{
+
+                            callbacks:{
+
+                                label:function(context){
+
+                                    return " نمره: " +
+                                        context.parsed.y;
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+
+    /* PIE */
+
+    let excellent=0;
+    let good=0;
+    let average=0;
+    let weak=0;
+
+
+    students.forEach(student => {
+
+        if(student.score >= 17){
+
+            excellent++;
+
+        }
+        else if(student.score >= 14){
+
+            good++;
+
+        }
+        else if(student.score >= 10){
+
+            average++;
+
+        }
+        else{
+
+            weak++;
+
+        }
+
+    });
+
+
+    if(pieChart){
+
+        pieChart.destroy();
+
+    }
+
+
+    const pieCanvas =
+        document.getElementById("pieChart");
+
+
+    pieChart =
+        new Chart(
+
+            pieCanvas,
+
+            {
+
+                type:"doughnut",
+
+                data:{
+
+                    labels:[
+                        "عالی",
+                        "خوب",
+                        "متوسط",
+                        "ضعیف"
+                    ],
+
+                    datasets:[{
+
+                        data:[
+                            excellent,
+                            good,
+                            average,
+                            weak
+                        ],
+
+                        borderWidth:3
+
+                    }]
+
+                },
+
+                options:{
+
+                    responsive:true,
+
+                    maintainAspectRatio:false,
+
+                    plugins:{
+
+                        legend:{
+
+                            position:"bottom"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+/* خروجی PDF */
+
+async function generatePDF(){
+
+    if(students.length === 0){
+
+        alert(
+            "ابتدا حداقل یک دانش‌آموز و نمره وارد کنید."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.querySelector(".pdf-btn");
+
+
+    button.textContent =
+        "⏳ در حال ساخت PDF...";
+
+
+    button.disabled=true;
+
+
+    try{
+
+        /*
+        برای خروجی PDF بهتر است
+        کنترل‌های ورود اطلاعات نمایش داده نشوند.
+        */
+
+        const noPrint =
+            document.querySelectorAll(".no-print");
+
+
+        noPrint.forEach(
+            el => el.dataset.oldDisplay = el.style.display
+        );
+
+
+        noPrint.forEach(
+            el => el.style.display="none"
+        );
+
+
+        await new Promise(
+            resolve => setTimeout(resolve,500)
+        );
+
+
+        const report =
+            document.getElementById("report");
+
+
+        const canvas =
+            await html2canvas(
+
+                report,
+
+                {
+
+                    scale:2,
+
+                    useCORS:true,
+
+                    backgroundColor:"#ffffff"
+
+                }
+
+            );
+
+
+        noPrint.forEach(el => {
+
+            el.style.display =
+                el.dataset.oldDisplay || "";
+
+        });
+
+
+        const imgData =
+            canvas.toDataURL("image/png");
+
+
+        const {
+            jsPDF
+        } =
+        window.jspdf;
+
+
+        const pdf =
+            new jsPDF({
+
+                orientation:"portrait",
+
+                unit:"mm",
+
+                format:"a4"
+
+            });
+
+
+        const pageWidth =
+            pdf.internal.pageSize.getWidth();
+
+
+        const pageHeight =
+            pdf.internal.pageSize.getHeight();
+
+
+        const margin=8;
+
+
+        const usableWidth =
+            pageWidth - margin*2;
+
+
+        const imgHeight =
+            canvas.height *
+            usableWidth /
+            canvas.width;
+
+
+        /*
+        اگر گزارش بلند باشد،
+        آن را در چند صفحه PDF قرار می‌دهیم.
+        */
+
+        let heightLeft =
+            imgHeight;
+
+
+        let position =
+            margin;
+
+
+        pdf.addImage(
+
+            imgData,
+
+            "PNG",
+
+            margin,
+
+            position,
+
+            usableWidth,
+
+            imgHeight
+
+        );
+
+
+        heightLeft -=
+            pageHeight - margin*2;
+
+
+        while(heightLeft > 0){
+
+            position =
+                -(imgHeight - heightLeft) +
+                margin;
+
+
+            pdf.addPage();
+
+
+            pdf.addImage(
+
+                imgData,
+
+                "PNG",
+
+                margin,
+
+                position,
+
+                usableWidth,
+
+                imgHeight
+
+            );
+
+
+            heightLeft -=
+                pageHeight - margin*2;
+
+        }
+
+
+        const date =
+            new Date();
+
+
+        const fileName =
+            "تحلیل-نمرات-" +
+            date.getFullYear() +
+            "-" +
+            (date.getMonth()+1) +
+            "-" +
+            date.getDate() +
+            ".pdf";
+
+
+        pdf.save(fileName);
+
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "در ساخت PDF مشکلی پیش آمد. لطفاً اتصال اینترنت را بررسی کنید."
+        );
+
+    }
+
+
+    button.textContent =
+        "📄 خروجی PDF";
+
+    button.disabled=false;
+
+}
+
+
+/* کلید Enter */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(event.key === "Enter"){
+
+            const active =
+                document.activeElement;
+
+
+            if(
+                active.id === "studentName" ||
+                active.id === "studentScore"
+            ){
+
+                addStudent();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* شروع */
+
+updateAll();
+
+</script>
+
+</body>
+</html>
